@@ -22,77 +22,75 @@ namespace PmxMcp
 
             registry.Add(
                 "list_bodies",
-                "Lists rigid bodies with their bone, mode, shape and placement. Paged, and "
-                    + "filterable by name.",
+                "列出刚体及其骨骼、模式、形状和位置。分页返回，可按名称筛选。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First body index to return (default 0)"),
-                    "limit", Schema.Int("How many bodies to return (default 200, max 1000)"),
-                    "name_contains", Schema.Str("Only bodies whose Japanese or English name contains this text"))),
+                    "offset", Schema.Int("返回的起始刚体索引（默认 0）"),
+                    "limit", Schema.Int("返回的刚体数量（默认 200，最大 1000）"),
+                    "name_contains", Schema.Str("仅返回日文名或英文名包含此文本的刚体"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListBodies(editor, args); });
 
             registry.Add(
                 "get_body",
-                "Full detail of one rigid body, including mass, damping and collision groups.",
+                "查看单个刚体的完整信息，包括质量、阻尼和碰撞组。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Rigid body index"),
-                    "name", Schema.Str("Japanese rigid body name"))),
+                    "index", Schema.Int("刚体索引"),
+                    "name", Schema.Str("日文刚体名"))),
                 true,
                 delegate(Dictionary<string, object> args) { return GetBody(editor, args); });
 
             registry.Add(
                 "set_body",
-                "Edits one rigid body. Only the fields you pass are changed. "
-                    + "mode is one of " + Modes + "; shape is one of " + Shapes + ". "
-                    + "Rotation is in radians.",
+                "编辑单个刚体。只修改传入的字段。"
+                    + "mode 为以下之一：" + Modes + "；shape 为以下之一：" + Shapes + "。"
+                    + "旋转单位为弧度。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Rigid body index"),
-                    "name", Schema.Str("Japanese name used to find the body"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"),
-                    "bone", Schema.Int("Bone index this body follows, or -1 for none"),
-                    "bone_name", Schema.Str("Bone name this body follows"),
-                    "mode", Schema.Str("Physics mode: " + Modes),
-                    "shape", Schema.Str("Collision shape: " + Shapes),
-                    "size", Schema.NumArray("Shape size [x, y, z]", 3),
-                    "position", Schema.NumArray("Position [x, y, z]", 3),
-                    "rotation", Schema.NumArray("Rotation in radians [x, y, z]", 3),
-                    "group", Schema.Int("Collision group, 0-15"),
-                    "pass_group", Schema.BoolArray("16 booleans: the groups this body does not collide with", 16),
-                    "mass", Schema.Num("Mass"),
-                    "position_damping", Schema.Num("Linear damping"),
-                    "rotation_damping", Schema.Num("Angular damping"),
-                    "restitution", Schema.Num("Bounciness"),
-                    "friction", Schema.Num("Friction"))),
+                    "index", Schema.Int("刚体索引"),
+                    "name", Schema.Str("用于查找刚体的日文名"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"),
+                    "bone", Schema.Int("刚体跟随的骨骼索引，-1 表示无"),
+                    "bone_name", Schema.Str("刚体跟随的骨骼名称"),
+                    "mode", Schema.Str("物理模式：" + Modes),
+                    "shape", Schema.Str("碰撞形状：" + Shapes),
+                    "size", Schema.NumArray("形状尺寸 [x, y, z]", 3),
+                    "position", Schema.NumArray("位置 [x, y, z]", 3),
+                    "rotation", Schema.NumArray("旋转（弧度）[x, y, z]", 3),
+                    "group", Schema.Int("碰撞组，0-15"),
+                    "pass_group", Schema.BoolArray("16 个布尔值：该刚体不与之碰撞的组", 16),
+                    "mass", Schema.Num("质量"),
+                    "position_damping", Schema.Num("移动阻尼"),
+                    "rotation_damping", Schema.Num("旋转阻尼"),
+                    "restitution", Schema.Num("弹性（回弹）"),
+                    "friction", Schema.Num("摩擦"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetBody(editor, args); });
 
             registry.Add(
                 "add_body",
-                "Adds a rigid body and returns its index. Everything not passed keeps the "
-                    + "editor default, so a new body can be created with just a name and a bone.",
+                "添加一个刚体并返回其索引。未传入的属性保持编辑器默认值，"
+                    + "因此只给名称和骨骼即可创建新刚体。",
                 Schema.Object(Json.Obj(
-                    "new_name", Schema.Str("Japanese name"),
-                    "new_name_en", Schema.Str("English name"),
-                    "bone", Schema.Int("Bone index this body follows, or -1 for none"),
-                    "bone_name", Schema.Str("Bone name this body follows"),
-                    "mode", Schema.Str("Physics mode: " + Modes),
-                    "shape", Schema.Str("Collision shape: " + Shapes),
-                    "size", Schema.NumArray("Shape size [x, y, z]", 3),
-                    "position", Schema.NumArray("Position [x, y, z]", 3),
-                    "rotation", Schema.NumArray("Rotation in radians [x, y, z]", 3),
-                    "group", Schema.Int("Collision group, 0-15"),
-                    "mass", Schema.Num("Mass"))),
+                    "new_name", Schema.Str("日文名"),
+                    "new_name_en", Schema.Str("英文名"),
+                    "bone", Schema.Int("刚体跟随的骨骼索引，-1 表示无"),
+                    "bone_name", Schema.Str("刚体跟随的骨骼名称"),
+                    "mode", Schema.Str("物理模式：" + Modes),
+                    "shape", Schema.Str("碰撞形状：" + Shapes),
+                    "size", Schema.NumArray("形状尺寸 [x, y, z]", 3),
+                    "position", Schema.NumArray("位置 [x, y, z]", 3),
+                    "rotation", Schema.NumArray("旋转（弧度）[x, y, z]", 3),
+                    "group", Schema.Int("碰撞组，0-15"),
+                    "mass", Schema.Num("质量"))),
                 false,
                 delegate(Dictionary<string, object> args) { return AddBody(editor, args); });
 
             registry.Add(
                 "delete_body",
-                "Deletes one rigid body. Joints that referenced it are left pointing at nothing, "
-                    + "so check list_joints afterwards.",
+                "删除一个刚体。引用它的 Joint 会变成空引用，请随后检查 list_joints。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Rigid body index"),
-                    "name", Schema.Str("Japanese rigid body name"))),
+                    "index", Schema.Int("刚体索引"),
+                    "name", Schema.Str("日文刚体名"))),
                 false,
                 delegate(Dictionary<string, object> args) { return DeleteBody(editor, args); });
 
@@ -100,66 +98,66 @@ namespace PmxMcp
 
             registry.Add(
                 "list_joints",
-                "Lists joints with the two bodies they connect and their placement. Paged.",
+                "列出 Joint 及其连接的两个刚体和位置。分页返回。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First joint index to return (default 0)"),
-                    "limit", Schema.Int("How many joints to return (default 200, max 1000)"),
-                    "name_contains", Schema.Str("Only joints whose Japanese or English name contains this text"))),
+                    "offset", Schema.Int("返回的起始 Joint 索引（默认 0）"),
+                    "limit", Schema.Int("返回的 Joint 数量（默认 200，最大 1000）"),
+                    "name_contains", Schema.Str("仅返回日文名或英文名包含此文本的 Joint"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListJoints(editor, args); });
 
             registry.Add(
                 "get_joint",
-                "Full detail of one joint, including its movement and angle limits and spring constants.",
+                "查看单个 Joint 的完整信息，包括移动和角度限制以及弹簧常数。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Joint index"),
-                    "name", Schema.Str("Japanese joint name"))),
+                    "index", Schema.Int("Joint 索引"),
+                    "name", Schema.Str("日文 Joint 名"))),
                 true,
                 delegate(Dictionary<string, object> args) { return GetJoint(editor, args); });
 
             registry.Add(
                 "set_joint",
-                "Edits one joint. Only the fields you pass are changed. kind is one of " + Kinds
-                    + ". Angles are in radians.",
+                "编辑单个 Joint。只修改传入的字段。kind 为以下之一：" + Kinds
+                    + "。角度单位为弧度。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Joint index"),
-                    "name", Schema.Str("Japanese name used to find the joint"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"),
-                    "body_a", Schema.Int("Index of the first rigid body, or -1 for none"),
-                    "body_b", Schema.Int("Index of the second rigid body, or -1 for none"),
-                    "kind", Schema.Str("Joint kind: " + Kinds),
-                    "position", Schema.NumArray("Position [x, y, z]", 3),
-                    "rotation", Schema.NumArray("Rotation in radians [x, y, z]", 3),
-                    "move_low", Schema.NumArray("Lower movement limit [x, y, z]", 3),
-                    "move_high", Schema.NumArray("Upper movement limit [x, y, z]", 3),
-                    "angle_low", Schema.NumArray("Lower angle limit in radians [x, y, z]", 3),
-                    "angle_high", Schema.NumArray("Upper angle limit in radians [x, y, z]", 3),
-                    "spring_move", Schema.NumArray("Movement spring constants [x, y, z]", 3),
-                    "spring_rotate", Schema.NumArray("Rotation spring constants [x, y, z]", 3))),
+                    "index", Schema.Int("Joint 索引"),
+                    "name", Schema.Str("用于查找 Joint 的日文名"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"),
+                    "body_a", Schema.Int("第一个刚体的索引，-1 表示无"),
+                    "body_b", Schema.Int("第二个刚体的索引，-1 表示无"),
+                    "kind", Schema.Str("Joint 类型：" + Kinds),
+                    "position", Schema.NumArray("位置 [x, y, z]", 3),
+                    "rotation", Schema.NumArray("旋转（弧度）[x, y, z]", 3),
+                    "move_low", Schema.NumArray("移动下限 [x, y, z]", 3),
+                    "move_high", Schema.NumArray("移动上限 [x, y, z]", 3),
+                    "angle_low", Schema.NumArray("角度下限（弧度）[x, y, z]", 3),
+                    "angle_high", Schema.NumArray("角度上限（弧度）[x, y, z]", 3),
+                    "spring_move", Schema.NumArray("移动弹簧常数 [x, y, z]", 3),
+                    "spring_rotate", Schema.NumArray("旋转弹簧常数 [x, y, z]", 3))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetJoint(editor, args); });
 
             registry.Add(
                 "add_joint",
-                "Adds a joint and returns its index.",
+                "添加一个 Joint 并返回其索引。",
                 Schema.Object(Json.Obj(
-                    "new_name", Schema.Str("Japanese name"),
-                    "new_name_en", Schema.Str("English name"),
-                    "body_a", Schema.Int("Index of the first rigid body"),
-                    "body_b", Schema.Int("Index of the second rigid body"),
-                    "kind", Schema.Str("Joint kind: " + Kinds),
-                    "position", Schema.NumArray("Position [x, y, z]", 3),
-                    "rotation", Schema.NumArray("Rotation in radians [x, y, z]", 3))),
+                    "new_name", Schema.Str("日文名"),
+                    "new_name_en", Schema.Str("英文名"),
+                    "body_a", Schema.Int("第一个刚体的索引"),
+                    "body_b", Schema.Int("第二个刚体的索引"),
+                    "kind", Schema.Str("Joint 类型：" + Kinds),
+                    "position", Schema.NumArray("位置 [x, y, z]", 3),
+                    "rotation", Schema.NumArray("旋转（弧度）[x, y, z]", 3))),
                 false,
                 delegate(Dictionary<string, object> args) { return AddJoint(editor, args); });
 
             registry.Add(
                 "delete_joint",
-                "Deletes one joint.",
+                "删除一个 Joint。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Joint index"),
-                    "name", Schema.Str("Japanese joint name"))),
+                    "index", Schema.Int("Joint 索引"),
+                    "name", Schema.Str("日文 Joint 名"))),
                 false,
                 delegate(Dictionary<string, object> args) { return DeleteJoint(editor, args); });
 
@@ -167,46 +165,46 @@ namespace PmxMcp
 
             registry.Add(
                 "list_soft_bodies",
-                "Lists soft bodies. PMX 2.1 only; most models have none.",
+                "列出 SoftBody。仅 PMX 2.1 支持；多数模型没有。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First soft body index to return (default 0)"),
-                    "limit", Schema.Int("How many to return (default 200, max 1000)"))),
+                    "offset", Schema.Int("返回的起始 SoftBody 索引（默认 0）"),
+                    "limit", Schema.Int("返回的数量（默认 200，最大 1000）"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListSoftBodies(editor, args); });
 
             registry.Add(
                 "get_soft_body",
-                "Full detail of one soft body, including every simulation coefficient.",
+                "查看单个 SoftBody 的完整信息，包括所有模拟系数。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Soft body index"),
-                    "name", Schema.Str("Japanese soft body name"))),
+                    "index", Schema.Int("SoftBody 索引"),
+                    "name", Schema.Str("日文 SoftBody 名"))),
                 true,
                 delegate(Dictionary<string, object> args) { return GetSoftBody(editor, args); });
 
             registry.Add(
                 "set_soft_body",
-                "Edits one soft body. Only the fields you pass are changed. shape is one of "
-                    + SoftShapes + ". The single-letter coefficients are the PMX 2.1 names.",
+                "编辑单个 SoftBody。只修改传入的字段。shape 为以下之一："
+                    + SoftShapes + "。单字母系数沿用 PMX 2.1 的命名。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Soft body index"),
-                    "name", Schema.Str("Japanese name used to find the soft body"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"),
-                    "shape", Schema.Str("Shape: " + SoftShapes),
-                    "material", Schema.Int("Material index the soft body is built from"),
-                    "group", Schema.Int("Collision group, 0-15"),
-                    "total_mass", Schema.Num("Total mass"),
-                    "margin", Schema.Num("Collision margin"),
-                    "aero_model", Schema.Int("Aero model"),
-                    "cluster_count", Schema.Int("Cluster count"),
-                    "bending_link_distance", Schema.Int("Bending link distance"),
-                    "generate_bending_links", Schema.Bool("Generate bending links"),
-                    "generate_clusters", Schema.Bool("Generate clusters"),
-                    "randomize_constraints", Schema.Bool("Randomise constraints"),
+                    "index", Schema.Int("SoftBody 索引"),
+                    "name", Schema.Str("用于查找 SoftBody 的日文名"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"),
+                    "shape", Schema.Str("形状：" + SoftShapes),
+                    "material", Schema.Int("SoftBody 所基于的材质索引"),
+                    "group", Schema.Int("碰撞组，0-15"),
+                    "total_mass", Schema.Num("总质量"),
+                    "margin", Schema.Num("碰撞边距"),
+                    "aero_model", Schema.Int("空气动力学模型"),
+                    "cluster_count", Schema.Int("簇数量"),
+                    "bending_link_distance", Schema.Int("弯曲链接距离"),
+                    "generate_bending_links", Schema.Bool("生成弯曲链接"),
+                    "generate_clusters", Schema.Bool("生成簇"),
+                    "randomize_constraints", Schema.Bool("随机化约束"),
                     "coefficients", Schema.Any(
-                        "Any of VCF, DP, DG, LF, PR, VC, DF, MT, CHR, KHR, SHR, AHR, "
-                        + "SRHR_CL, SKHR_CL, SSHR_CL, SR_SPLT_CL, SK_SPLT_CL, SS_SPLT_CL, "
-                        + "LST, AST, VST as numbers, and V_IT, P_IT, D_IT, C_IT as integers"))),
+                        "以下任一项可作为数值：VCF、DP、DG、LF、PR、VC、DF、MT、CHR、KHR、SHR、AHR、"
+                        + "SRHR_CL、SKHR_CL、SSHR_CL、SR_SPLT_CL、SK_SPLT_CL、SS_SPLT_CL、"
+                        + "LST、AST、VST；以下项为整数：V_IT、P_IT、D_IT、C_IT"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetSoftBody(editor, args); });
         }

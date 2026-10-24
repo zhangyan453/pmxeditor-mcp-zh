@@ -20,59 +20,58 @@ namespace PmxMcp
         {
             registry.Add(
                 "list_nodes",
-                "Lists the ordinary display frames with the bones and morphs they hold. The "
-                    + "two fixed frames a PMX must have, Root and Expression, are not part of "
-                    + "that list and come back separately as root and expression.",
+                "列出普通显示枠及其包含的骨骼和表情。PMX 必备的两个固定枠 Root 和 Expression "
+                    + "不在该列表中，会分别以 root 和 expression 返回。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First frame index to return (default 0)"),
-                    "limit", Schema.Int("How many frames to return (default 200, max 1000)"))),
+                    "offset", Schema.Int("返回的起始显示枠索引（默认 0）"),
+                    "limit", Schema.Int("返回的显示枠数量（默认 200，最大 1000）"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListNodes(editor, args); });
 
             registry.Add(
                 "get_node",
-                "Full detail of one display frame: every item, in order, as a bone or morph "
-                    + "index. Pass which=root or which=expression for the two fixed frames.",
+                "查看单个显示枠的完整信息：按顺序列出每一项，以骨骼或表情索引表示。"
+                    + "传入 which=root 或 which=expression 可查看两个固定枠。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Frame index"),
-                    "name", Schema.Str("Japanese frame name"),
-                    "which", Schema.Str("Instead of an index: root or expression, for the two "
-                        + "fixed frames PMX Editor keeps outside the list"))),
+                    "index", Schema.Int("显示枠索引"),
+                    "name", Schema.Str("日文显示枠名"),
+                    "which", Schema.Str("不使用索引：root 或 expression，用于查看 PMX Editor "
+                        + "保存在列表之外的两个固定枠"))),
                 true,
                 delegate(Dictionary<string, object> args) { return GetNode(editor, args); });
 
             registry.Add(
                 "set_node",
-                "Edits one display frame. Passing items replaces the whole contents; each item "
-                    + "is {\"bone\": index} or {\"morph\": index}, or the same with _name.",
+                "编辑单个显示枠。传入 items 会替换全部内容；每项为 {\"bone\": 索引} 或 "
+                    + "{\"morph\": 索引}，也可用对应的 _name 字段。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Frame index"),
-                    "name", Schema.Str("Japanese name used to find the frame"),
-                    "which", Schema.Str("Instead of an index: root or expression"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"),
+                    "index", Schema.Int("显示枠索引"),
+                    "name", Schema.Str("用于查找显示枠的日文名"),
+                    "which", Schema.Str("不使用索引：root 或 expression"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"),
                     "items", Schema.ObjArray(
-                        "Replacement contents, in order. Each entry is {\"bone\": index}, "
-                        + "{\"bone_name\": name}, {\"morph\": index} or {\"morph_name\": name}."))),
+                        "按顺序排列的替换内容。每项为 {\"bone\": 索引}、"
+                        + "{\"bone_name\": 名称}、{\"morph\": 索引} 或 {\"morph_name\": 名称}。"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetNode(editor, args); });
 
             registry.Add(
                 "add_node",
-                "Adds a display frame and returns its index.",
+                "添加一个显示枠并返回其索引。",
                 Schema.Object(Json.Obj(
-                    "new_name", Schema.Str("Japanese name"),
-                    "new_name_en", Schema.Str("English name"),
-                    "items", Schema.ObjArray("Contents, in the same shape as set_node"))),
+                    "new_name", Schema.Str("日文名"),
+                    "new_name_en", Schema.Str("英文名"),
+                    "items", Schema.ObjArray("内容，格式同 set_node"))),
                 false,
                 delegate(Dictionary<string, object> args) { return AddNode(editor, args); });
 
             registry.Add(
                 "delete_node",
-                "Deletes one ordinary display frame. The two fixed frames are refused.",
+                "删除一个普通显示枠。两个固定枠会被拒绝。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Frame index"),
-                    "name", Schema.Str("Japanese frame name"))),
+                    "index", Schema.Int("显示枠索引"),
+                    "name", Schema.Str("日文显示枠名"))),
                 false,
                 delegate(Dictionary<string, object> args) { return DeleteNode(editor, args); });
         }

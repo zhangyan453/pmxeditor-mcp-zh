@@ -10,54 +10,51 @@ namespace PmxMcp
         {
             registry.Add(
                 "get_model_info",
-                "Summary of the model open in PMX Editor: names, comments, element counts, file path and undo depth.",
+                "PMX Editor 中当前模型的概要：名称、注释、各元素数量、文件路径和撤销深度。",
                 Schema.None(),
                 true,
                 delegate(Dictionary<string, object> args) { return GetModelInfo(editor); });
 
             registry.Add(
                 "set_model_info",
-                "Renames the model or replaces its comments. Only the fields you pass are changed.",
+                "重命名模型或替换其注释。只修改传入的字段。",
                 Schema.Object(Json.Obj(
-                    "name", Schema.Str("Japanese model name"),
-                    "name_en", Schema.Str("English model name"),
-                    "comment", Schema.Str("Japanese comment"),
-                    "comment_en", Schema.Str("English comment"))),
+                    "name", Schema.Str("日文模型名"),
+                    "name_en", Schema.Str("英文模型名"),
+                    "comment", Schema.Str("日文注释"),
+                    "comment_en", Schema.Str("英文注释"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetModelInfo(editor, args); });
 
             registry.Add(
                 "get_header",
-                "The PMX header: format version, how strings are stored, and how many "
-                    + "additional UV channels each vertex carries.",
+                "PMX 文件头：格式版本、字符串存储方式和每个顶点携带的追加 UV 通道数。",
                 Schema.None(),
                 true,
                 delegate(Dictionary<string, object> args) { return GetHeader(editor); });
 
             registry.Add(
                 "set_header",
-                "Edits the PMX header. The change takes in the editor, but PMX Editor writes "
-                    + "the header from what the model actually contains when it saves: a model "
-                    + "using no 2.1 feature is written as 2.0 however you set the version, and "
-                    + "an additional UV channel no vertex uses is dropped. Set the content "
-                    + "first and the header follows.",
+                "编辑 PMX 文件头。改动会在编辑器中生效，但保存时 PMX Editor 会根据模型实际内容写入文件头："
+                    + "不使用 2.1 特性的模型无论版本号设为多少都会写成 2.0，"
+                    + "没有顶点使用的追加 UV 通道会被丢弃。先设置内容，文件头会随之更新。",
                 Schema.Object(Json.Obj(
-                    "version", Schema.Num("Format version, normally 2.0 or 2.1"),
-                    "string_encode", Schema.Int("0 stores strings as UTF-16, 1 as UTF-8"),
-                    "uva_count", Schema.Int("Additional UV channels per vertex, 0-4"))),
+                    "version", Schema.Num("格式版本，通常为 2.0 或 2.1"),
+                    "string_encode", Schema.Int("0 表示字符串以 UTF-16 存储，1 表示 UTF-8"),
+                    "uva_count", Schema.Int("每个顶点的追加 UV 通道数，0-4"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetHeader(editor, args); });
 
             registry.Add(
                 "undo",
-                "Undoes the last edit in PMX Editor.",
+                "撤销 PMX Editor 中的上一次编辑。",
                 Schema.None(),
                 false,
                 delegate(Dictionary<string, object> args) { return Undo(editor); });
 
             registry.Add(
                 "redo",
-                "Redoes the last undone edit in PMX Editor.",
+                "重做 PMX Editor 中上一次撤销的编辑。",
                 Schema.None(),
                 false,
                 delegate(Dictionary<string, object> args) { return Redo(editor); });

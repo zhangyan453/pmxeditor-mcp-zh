@@ -37,3 +37,27 @@ REFERENCES / 参照
 -----------------
 
   - Model Context Protocol: https://modelcontextprotocol.io/
+
+FORK / 中文分支
+---------------
+
+This repository is a Simplified-Chinese fork of PMXEditor_MCP_Plugin 0.2.0
+(https://github.com/chiqurjin/PMXEditor_MCP_Plugin). It is released under the
+same MIT License; see LICENSE.
+
+本仓库是 PMXEditor_MCP_Plugin 0.2.0 的简体中文分支，同样以 MIT 许可证发布。
+
+Changes in this fork / 本分支改动:
+
+  - 52 MCP tool descriptions and 259 parameter descriptions translated to
+    Simplified Chinese. Tool names and parameter names are unchanged.
+  - capture_viewport reimplemented with Win32 PrintWindow for PMX Editor 0254e,
+    whose PEPlugin API does not expose IPXPmxViewConnector.GetClientImage().
+  - Built and tested against PMX Editor 0254e (PEPlugin 0.0.8.4) on Windows
+    with .NET Framework 4.8.
+
+No PMX Editor binaries or libraries are included or redistributed here.
+本仓库不包含、不转发 PMXEditor 本体及其依赖库。
+
+The original MIT copyright notice, this NOTICE, and the unofficial disclaimer
+above must be retained in redistributions.

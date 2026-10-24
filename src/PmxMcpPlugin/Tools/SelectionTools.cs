@@ -13,20 +13,20 @@ namespace PmxMcp
         {
             registry.Add(
                 "get_selection",
-                "Reads the current selection: bones, vertices, faces and materials selected in PmxView and in the editor lists. "
-                    + "Long index lists are truncated, the full size is reported as a count.",
+                "读取当前选择：在 PmxView 和编辑器列表中选中的骨骼、顶点、面和材质。"
+                    + "过长的索引列表会被截断，完整数量以 count 报告。",
                 Schema.None(),
                 true,
                 delegate(Dictionary<string, object> args) { return GetSelection(editor); });
 
             registry.Add(
                 "set_selection",
-                "Replaces the selection in PmxView and the material list. Pass only the kinds you want to change.",
+                "替换 PmxView 和材质列表中的选择。只需传入想要更改的种类。",
                 Schema.Object(Json.Obj(
-                    "bone_indices", Schema.IntArray("Bone indices to select"),
-                    "vertex_indices", Schema.IntArray("Vertex indices to select"),
-                    "face_indices", Schema.IntArray("Face indices to select"),
-                    "material_indices", Schema.IntArray("Material indices to select"))),
+                    "bone_indices", Schema.IntArray("要选择的骨骼索引"),
+                    "vertex_indices", Schema.IntArray("要选择的顶点索引"),
+                    "face_indices", Schema.IntArray("要选择的面索引"),
+                    "material_indices", Schema.IntArray("要选择的材质索引"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetSelection(editor, args); });
         }

@@ -17,64 +17,62 @@ namespace PmxMcp
         {
             registry.Add(
                 "list_vertices",
-                "Lists vertices with position, normal, UV and bone weights. Paged; models have "
-                    + "tens of thousands of vertices, so ask for a window rather than all of them.",
+                "列出顶点的位置、法线、UV 和骨骼权重。分页返回；模型通常有数万个顶点，"
+                    + "建议按窗口请求而不是一次取全部。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First vertex index to return (default 0)"),
-                    "limit", Schema.Int("How many vertices to return (default 50, max 1000)"))),
+                    "offset", Schema.Int("返回的起始顶点索引（默认 0）"),
+                    "limit", Schema.Int("返回的顶点数量（默认 50，最大 1000）"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListVertices(editor, args); });
 
             registry.Add(
                 "get_vertex",
-                "Full detail of one vertex: position, normal, UV, additional UVs, the bones that "
-                    + "deform it with their weights, the edge scale and any SDEF data.",
+                "查看单个顶点的完整信息：位置、法线、UV、追加 UV、使其变形的骨骼及权重、"
+                    + "边缘缩放和 SDEF 数据。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Vertex index")),
+                    "index", Schema.Int("顶点索引")),
                     "index"),
                 true,
                 delegate(Dictionary<string, object> args) { return GetVertex(editor, args); });
 
             registry.Add(
                 "set_vertex",
-                "Edits one vertex. Only the fields you pass are changed. Weights are not "
-                    + "normalised for you: pass the set you want.",
+                "编辑单个顶点。只修改传入的字段。权重不会自动归一化：请传入所需的一组权重。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Vertex index"),
-                    "position", Schema.NumArray("Position [x, y, z]", 3),
-                    "normal", Schema.NumArray("Normal [x, y, z]", 3),
-                    "uv", Schema.NumArray("Texture coordinate [u, v]", 2),
-                    "uva1", Schema.NumArray("Additional UV 1 [x, y, z, w]", 4),
-                    "uva2", Schema.NumArray("Additional UV 2 [x, y, z, w]", 4),
-                    "uva3", Schema.NumArray("Additional UV 3 [x, y, z, w]", 4),
-                    "uva4", Schema.NumArray("Additional UV 4 [x, y, z, w]", 4),
-                    "bone1", Schema.Int("Bone index for slot 1, or -1 for none"),
-                    "bone2", Schema.Int("Bone index for slot 2, or -1 for none"),
-                    "bone3", Schema.Int("Bone index for slot 3, or -1 for none"),
-                    "bone4", Schema.Int("Bone index for slot 4, or -1 for none"),
-                    "weight1", Schema.Num("Weight for slot 1"),
-                    "weight2", Schema.Num("Weight for slot 2"),
-                    "weight3", Schema.Num("Weight for slot 3"),
-                    "weight4", Schema.Num("Weight for slot 4"),
-                    "edge_scale", Schema.Num("Per-vertex outline scale; 0 hides the outline here"),
-                    "sdef", Schema.Bool("Use SDEF deformation"),
-                    "qdef", Schema.Bool("Use QDEF deformation"),
-                    "sdef_c", Schema.NumArray("SDEF C [x, y, z]", 3),
-                    "sdef_r0", Schema.NumArray("SDEF R0 [x, y, z]", 3),
-                    "sdef_r1", Schema.NumArray("SDEF R1 [x, y, z]", 3)),
+                    "index", Schema.Int("顶点索引"),
+                    "position", Schema.NumArray("位置 [x, y, z]", 3),
+                    "normal", Schema.NumArray("法线 [x, y, z]", 3),
+                    "uv", Schema.NumArray("贴图坐标 [u, v]", 2),
+                    "uva1", Schema.NumArray("追加 UV 1 [x, y, z, w]", 4),
+                    "uva2", Schema.NumArray("追加 UV 2 [x, y, z, w]", 4),
+                    "uva3", Schema.NumArray("追加 UV 3 [x, y, z, w]", 4),
+                    "uva4", Schema.NumArray("追加 UV 4 [x, y, z, w]", 4),
+                    "bone1", Schema.Int("槽位 1 的骨骼索引，-1 表示无"),
+                    "bone2", Schema.Int("槽位 2 的骨骼索引，-1 表示无"),
+                    "bone3", Schema.Int("槽位 3 的骨骼索引，-1 表示无"),
+                    "bone4", Schema.Int("槽位 4 的骨骼索引，-1 表示无"),
+                    "weight1", Schema.Num("槽位 1 的权重"),
+                    "weight2", Schema.Num("槽位 2 的权重"),
+                    "weight3", Schema.Num("槽位 3 的权重"),
+                    "weight4", Schema.Num("槽位 4 的权重"),
+                    "edge_scale", Schema.Num("逐顶点轮廓缩放；0 表示此处不显示轮廓"),
+                    "sdef", Schema.Bool("使用 SDEF 变形"),
+                    "qdef", Schema.Bool("使用 QDEF 变形"),
+                    "sdef_c", Schema.NumArray("SDEF 的 C 向量 [x, y, z]", 3),
+                    "sdef_r0", Schema.NumArray("SDEF 的 R0 向量 [x, y, z]", 3),
+                    "sdef_r1", Schema.NumArray("SDEF 的 R1 向量 [x, y, z]", 3)),
                     "index"),
                 false,
                 delegate(Dictionary<string, object> args) { return SetVertex(editor, args); });
 
             registry.Add(
                 "list_faces",
-                "Lists the triangles of one material as vertex indices. Identify the material by "
-                    + "index or name. Paged.",
+                "列出某个材质的三角面，以顶点索引表示。可用索引或名称指定材质。分页返回。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Material index"),
-                    "name", Schema.Str("Japanese material name"),
-                    "offset", Schema.Int("First triangle to return (default 0)"),
-                    "limit", Schema.Int("How many triangles to return (default 200, max 1000)"))),
+                    "index", Schema.Int("材质索引"),
+                    "name", Schema.Str("日文材质名"),
+                    "offset", Schema.Int("返回的起始三角面索引（默认 0）"),
+                    "limit", Schema.Int("返回的三角面数量（默认 200，最大 1000）"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListFaces(editor, args); });
         }

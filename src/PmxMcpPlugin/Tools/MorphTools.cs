@@ -9,90 +9,89 @@ namespace PmxMcp
         {
             registry.Add(
                 "list_morphs",
-                "Lists morphs with their index, names, kind (Vertex/Bone/Material/UV/Group), panel and offset count.",
+                "列出表情及其索引、名称、类型（Vertex/Bone/Material/UV/Group）、面板和偏移数量。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First morph index to return (default 0)"),
-                    "limit", Schema.Int("How many morphs to return (default 200, max 1000)"),
-                    "name_contains", Schema.Str("Only morphs whose Japanese or English name contains this text"),
-                    "kind", Schema.Str("Only morphs of this kind, e.g. Vertex, Bone, Material, UV, Group"))),
+                    "offset", Schema.Int("返回的起始表情索引（默认 0）"),
+                    "limit", Schema.Int("返回的表情数量（默认 200，最大 1000）"),
+                    "name_contains", Schema.Str("仅返回日文名或英文名包含此文本的表情"),
+                    "kind", Schema.Str("仅返回该类型的表情，例如 Vertex、Bone、Material、UV、Group"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListMorphs(editor, args); });
 
             registry.Add(
                 "set_morph_name",
-                "Renames one morph, found by index or current Japanese name.",
+                "重命名一个表情，可用索引或当前日文名指定。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Morph index"),
-                    "name", Schema.Str("Current Japanese name used to find the morph"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"))),
+                    "index", Schema.Int("表情索引"),
+                    "name", Schema.Str("用于查找表情的当前日文名"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetMorphName(editor, args); });
 
             registry.Add(
                 "get_morph",
-                "Full detail of one morph, including its offsets. The shape of each offset "
-                    + "depends on the kind: a vertex morph moves vertices, a bone morph moves and "
-                    + "turns bones, a material morph scales or replaces material values, a group "
-                    + "morph drives other morphs.",
+                "查看单个表情的完整信息，包括其偏移。每个偏移的形式取决于表情类型："
+                    + "顶点表情移动顶点，骨骼表情移动并旋转骨骼，材质表情缩放或替换材质数值，"
+                    + "组表情驱动其他表情。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Morph index"),
-                    "name", Schema.Str("Japanese morph name"),
-                    "offset", Schema.Int("First offset to return (default 0)"),
-                    "limit", Schema.Int("How many offsets to return (default 200, max 1000)"))),
+                    "index", Schema.Int("表情索引"),
+                    "name", Schema.Str("日文表情名"),
+                    "offset", Schema.Int("返回的起始偏移索引（默认 0）"),
+                    "limit", Schema.Int("返回的偏移数量（默认 200，最大 1000）"))),
                 true,
                 delegate(Dictionary<string, object> args) { return GetMorph(editor, args); });
 
             registry.Add(
                 "set_morph",
-                "Edits one morph. panel is 1 eyebrow, 2 eye, 3 mouth, 4 other. Changing kind "
-                    + "clears the offsets, because offsets of one kind do not fit another.",
+                "编辑单个表情。panel 取值：1 眉毛、2 眼睛、3 嘴、4 其他。"
+                    + "更改 kind 会清空偏移，因为一种类型的偏移不适用于另一种。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Morph index"),
-                    "name", Schema.Str("Japanese name used to find the morph"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"),
-                    "panel", Schema.Int("Operation panel: 1 eyebrow, 2 eye, 3 mouth, 4 other"),
-                    "kind", Schema.Str("Morph kind: " + Kinds))),
+                    "index", Schema.Int("表情索引"),
+                    "name", Schema.Str("用于查找表情的日文名"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"),
+                    "panel", Schema.Int("操作面板：1 眉毛、2 眼睛、3 嘴、4 其他"),
+                    "kind", Schema.Str("表情类型：" + Kinds))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetMorph(editor, args); });
 
             registry.Add(
                 "set_morph_offsets",
-                "Replaces every offset of one morph. Each entry matches the morph kind. "
-                    + "Vertex: vertex index plus offset [x,y,z]. "
-                    + "UV: vertex index plus offset [x,y,z,w]. "
-                    + "Bone: bone index or bone_name, plus translation [x,y,z] and rotation [x,y,z,w]. "
-                    + "Group: morph index plus ratio. "
-                    + "Material: material index, op 0 or 1, then any of diffuse, specular, ambient, "
-                    + "power, edge_size, edge_color, tex, sphere, toon. "
-                    + "Impulse: body index, local, velocity [x,y,z], torque [x,y,z].",
+                "替换一个表情的全部偏移。每项须与表情类型匹配。"
+                    + "Vertex：顶点索引加偏移 [x,y,z]。"
+                    + "UV：顶点索引加偏移 [x,y,z,w]。"
+                    + "Bone：骨骼索引或 bone_name，加平移 [x,y,z] 和旋转 [x,y,z,w]。"
+                    + "Group：表情索引加比例。"
+                    + "Material：材质索引、op 为 0 或 1，再加 diffuse、specular、ambient、"
+                    + "power、edge_size、edge_color、tex、sphere、toon 中任意项。"
+                    + "Impulse：刚体索引、local、速度 [x,y,z]、力矩 [x,y,z]。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Morph index"),
-                    "name", Schema.Str("Japanese name used to find the morph"),
-                    "offsets", Schema.ObjArray("The complete replacement offset list"))),
+                    "index", Schema.Int("表情索引"),
+                    "name", Schema.Str("用于查找表情的日文名"),
+                    "offsets", Schema.ObjArray("完整的替换偏移列表"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetMorphOffsets(editor, args); });
 
             registry.Add(
                 "add_morph",
-                "Adds an empty morph and returns its index. Fill it with set_morph_offsets.",
+                "添加一个空表情并返回其索引。再用 set_morph_offsets 填充。",
                 Schema.Object(Json.Obj(
-                    "new_name", Schema.Str("Japanese name"),
-                    "new_name_en", Schema.Str("English name"),
-                    "panel", Schema.Int("Operation panel: 1 eyebrow, 2 eye, 3 mouth, 4 other"),
-                    "kind", Schema.Str("Morph kind: " + Kinds),
-                    "offsets", Schema.ObjArray("Optional initial offsets, as in set_morph_offsets"))),
+                    "new_name", Schema.Str("日文名"),
+                    "new_name_en", Schema.Str("英文名"),
+                    "panel", Schema.Int("操作面板：1 眉毛、2 眼睛、3 嘴、4 其他"),
+                    "kind", Schema.Str("表情类型：" + Kinds),
+                    "offsets", Schema.ObjArray("可选的初始偏移，格式同 set_morph_offsets"))),
                 false,
                 delegate(Dictionary<string, object> args) { return AddMorph(editor, args); });
 
             registry.Add(
                 "delete_morph",
-                "Deletes one morph. Display frames and group morphs that referenced it are left "
-                    + "pointing at nothing, so check list_nodes afterwards.",
+                "删除一个表情。引用它的显示枠和组表情会变成空引用，"
+                    + "请随后检查 list_nodes。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Morph index"),
-                    "name", Schema.Str("Japanese morph name"))),
+                    "index", Schema.Int("表情索引"),
+                    "name", Schema.Str("日文表情名"))),
                 false,
                 delegate(Dictionary<string, object> args) { return DeleteMorph(editor, args); });
         }

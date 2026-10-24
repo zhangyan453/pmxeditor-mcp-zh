@@ -10,20 +10,20 @@ namespace PmxMcp
         {
             registry.Add(
                 "open_model",
-                "Opens a .pmx or .pmd file in PMX Editor, replacing whatever is loaded. Unsaved changes are lost.",
+                "在 PMX Editor 中打开 .pmx 或 .pmd 文件，替换当前已加载的模型。未保存的修改会丢失。",
                 Schema.Object(Json.Obj(
-                    "path", Schema.Str("Absolute path to a .pmx or .pmd file")),
+                    "path", Schema.Str("要打开的 .pmx 或 .pmd 文件的绝对路径")),
                     "path"),
                 false,
                 delegate(Dictionary<string, object> args) { return OpenModel(editor, args); });
 
             registry.Add(
                 "save_model",
-                "Saves the current model. Without a path it overwrites the file that is open; "
-                    + "with a path it writes a new file, and refuses to clobber an existing one unless overwrite is true.",
+                "保存当前模型。不传 path 时覆盖已打开的文件；传入 path 时写入新文件，"
+                    + "且除非 overwrite 为 true，否则不会覆盖已存在的文件。",
                 Schema.Object(Json.Obj(
-                    "path", Schema.Str("Absolute path of the .pmx file to write"),
-                    "overwrite", Schema.Bool("Allow replacing an existing file at path (default false)"))),
+                    "path", Schema.Str("要写入的 .pmx 文件的绝对路径"),
+                    "overwrite", Schema.Bool("允许覆盖 path 处已存在的文件（默认 false）"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SaveModel(editor, args); });
         }

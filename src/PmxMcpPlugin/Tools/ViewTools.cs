@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
 using PEPlugin.SDX;
 using PEPlugin.View;
 
@@ -11,30 +15,61 @@ namespace PmxMcp
     /// <summary>Screenshots and camera control for the PmxView window.</summary>
     internal static class ViewTools
     {
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumChildWindows(IntPtr parent, EnumWindowsProc callback, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+
+        [DllImport("user32.dll")]
+        private static extern bool PrintWindow(IntPtr hWnd, IntPtr hdc, uint flags);
+
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
         public static void Register(ToolRegistry registry, Editor editor)
         {
             registry.Add(
                 "capture_viewport",
-                "Captures the PmxView window as a PNG image. Use it to see the model or to check the result of an edit.",
+                "截取 PmxView 窗口为 PNG 图片。可用于查看模型或检查编辑结果。",
                 Schema.Object(Json.Obj(
-                    "max_width", Schema.Int("Downscale so the image is at most this wide (default 1024, 0 keeps full size)"))),
+                    "max_width", Schema.Int("缩放到最大为此宽度（默认 1024，0 表示保持原尺寸）"))),
                 true,
                 delegate(Dictionary<string, object> args) { return Capture(editor, args); });
 
             registry.Add(
                 "get_camera",
-                "Reads the PmxView camera: eye position, target and up vector.",
+                "读取 PmxView 相机：视点位置、目标和上方向向量。",
                 Schema.None(),
                 true,
                 delegate(Dictionary<string, object> args) { return GetCamera(editor); });
 
             registry.Add(
                 "set_camera",
-                "Moves the PmxView camera. Pass position and target as [x, y, z]; up defaults to the current up vector.",
+                "移动 PmxView 相机。以 [x, y, z] 传入 position 和 target；up 默认为当前上方向向量。",
                 Schema.Object(Json.Obj(
-                    "position", Schema.NumArray("Eye position [x, y, z]", 3),
-                    "target", Schema.NumArray("Look-at point [x, y, z]", 3),
-                    "up", Schema.NumArray("Up vector [x, y, z]", 3)),
+                    "position", Schema.NumArray("视点位置 [x, y, z]", 3),
+                    "target", Schema.NumArray("注视点 [x, y, z]", 3),
+                    "up", Schema.NumArray("上方向向量 [x, y, z]", 3)),
                     "position", "target"),
                 false,
                 delegate(Dictionary<string, object> args) { return SetCamera(editor, args); });
@@ -46,10 +81,17 @@ namespace PmxMcp
 
             return editor.Ui<object>(delegate
             {
-                Bitmap captured = editor.Connector.View.PmxView.GetClientImage();
+                // PMX Editor 0254 does not expose a viewport bitmap API (GetClientImage was
+                // added later). PrintWindow grabs the view window directly, so overlapping
+                // editor panels and other windows do not end up in the screenshot.
+                Bitmap captured = CaptureViewWindow();
                 if (captured == null)
                 {
-                    throw new McpToolException("PmxView returned no image; make sure the view window is open.");
+                    captured = CaptureScreenFallback(editor);
+                }
+                if (captured == null)
+                {
+                    throw new McpToolException("Could not capture PmxView; make sure the view window is open and visible.");
                 }
 
                 Bitmap scaled = null;
@@ -76,6 +118,123 @@ namespace PmxMcp
                     captured.Dispose();
                 }
             });
+        }
+
+        /// <summary>Finds the PmxView top-level window and prints its largest visible child.</summary>
+        private static Bitmap CaptureViewWindow()
+        {
+            IntPtr view = FindWindowByTitle("PmxView");
+            if (view == IntPtr.Zero) return null;
+
+            IntPtr target = FindLargestVisibleChild(view);
+            if (target == IntPtr.Zero) target = view;
+
+            return PrintWindowBitmap(target);
+        }
+
+        private static Bitmap CaptureScreenFallback(Editor editor)
+        {
+            IPXPmxViewConnector view = editor.Connector.View.PmxView;
+            Rectangle bounds = new Rectangle(view.Location, view.Size);
+            if (bounds.Width <= 0 || bounds.Height <= 0) return null;
+
+            view.Focus();
+            Application.DoEvents();
+
+            Bitmap captured = new Bitmap(bounds.Width, bounds.Height);
+            try
+            {
+                using (Graphics graphics = Graphics.FromImage(captured))
+                {
+                    graphics.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
+                }
+                return captured;
+            }
+            catch
+            {
+                captured.Dispose();
+                return null;
+            }
+        }
+
+        private static IntPtr FindWindowByTitle(string titlePart)
+        {
+            uint pid = (uint)Process.GetCurrentProcess().Id;
+            IntPtr found = IntPtr.Zero;
+
+            EnumWindows(delegate(IntPtr hWnd, IntPtr lParam)
+            {
+                uint processId;
+                GetWindowThreadProcessId(hWnd, out processId);
+                if (processId != pid || !IsWindowVisible(hWnd)) return true;
+
+                StringBuilder text = new StringBuilder(256);
+                GetWindowText(hWnd, text, text.Capacity);
+                if (text.ToString().IndexOf(titlePart, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    found = hWnd;
+                    return false;
+                }
+                return true;
+            }, IntPtr.Zero);
+
+            return found;
+        }
+
+        private static IntPtr FindLargestVisibleChild(IntPtr parent)
+        {
+            IntPtr best = IntPtr.Zero;
+            long bestArea = 0;
+
+            EnumChildWindows(parent, delegate(IntPtr hWnd, IntPtr lParam)
+            {
+                if (!IsWindowVisible(hWnd)) return true;
+
+                RECT rect;
+                if (!GetWindowRect(hWnd, out rect)) return true;
+
+                long area = (long)(rect.Right - rect.Left) * (rect.Bottom - rect.Top);
+                if (area > bestArea)
+                {
+                    bestArea = area;
+                    best = hWnd;
+                }
+                return true;
+            }, IntPtr.Zero);
+
+            return best;
+        }
+
+        private static Bitmap PrintWindowBitmap(IntPtr hWnd)
+        {
+            RECT rect;
+            if (!GetWindowRect(hWnd, out rect)) return null;
+
+            int width = rect.Right - rect.Left;
+            int height = rect.Bottom - rect.Top;
+            if (width <= 0 || height <= 0) return null;
+
+            Bitmap bitmap = new Bitmap(width, height);
+            bool printed;
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                IntPtr hdc = graphics.GetHdc();
+                try
+                {
+                    printed = PrintWindow(hWnd, hdc, 2);
+                }
+                finally
+                {
+                    graphics.ReleaseHdc(hdc);
+                }
+            }
+
+            if (!printed)
+            {
+                bitmap.Dispose();
+                return null;
+            }
+            return bitmap;
         }
 
         private static object GetCamera(Editor editor)

@@ -20,106 +20,104 @@ namespace PmxMcp
         {
             registry.Add(
                 "list_bones",
-                "Lists bones with their index, names, parent and position. Paged, and filterable by name.",
+                "列出骨骼及其索引、名称、父骨骼和位置。分页返回，可按名称筛选。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First bone index to return (default 0)"),
-                    "limit", Schema.Int("How many bones to return (default 200, max 1000)"),
-                    "name_contains", Schema.Str("Only bones whose Japanese or English name contains this text"))),
+                    "offset", Schema.Int("返回的起始骨骼索引（默认 0）"),
+                    "limit", Schema.Int("返回的骨骼数量（默认 200，最大 1000）"),
+                    "name_contains", Schema.Str("仅返回日文名或英文名包含此文本的骨骼"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListBones(editor, args); });
 
             registry.Add(
                 "get_bone",
-                "Full detail of one bone: flags, deform level, append parent, fixed axis, local "
-                    + "frame axes and IK links. Identify it by index or name.",
+                "查看单个骨骼的完整信息：标志位、变形层级、追加父骨骼、固定轴、局部坐标系轴和 IK 链接。"
+                    + "可用索引或名称指定。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Bone index"),
-                    "name", Schema.Str("Japanese bone name"))),
+                    "index", Schema.Int("骨骼索引"),
+                    "name", Schema.Str("日文骨骼名"))),
                 true,
                 delegate(Dictionary<string, object> args) { return GetBone(editor, args); });
 
             registry.Add(
                 "set_bone",
-                "Edits one bone. Identify it by index or name; only the fields you pass are changed. "
-                    + "Bone references accept either an index (-1 for none) or the matching _name field. "
-                    + "fix_axis and local_frame only affect how the bone is handled in an editor, not "
-                    + "how the model deforms.",
+                "编辑单个骨骼。可用索引或名称指定，只修改传入的字段。"
+                    + "骨骼引用可传索引（-1 表示无）或对应的 _name 字段。"
+                    + "fix_axis 和 local_frame 只影响编辑器中的操作方式，不影响模型变形。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Bone index"),
-                    "name", Schema.Str("Japanese bone name used to find the bone"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"),
-                    "position", Schema.NumArray("New bone position [x, y, z]", 3),
-                    "parent", Schema.Int("Parent bone index, or -1 for none"),
-                    "parent_name", Schema.Str("Parent bone name"),
-                    "to_bone", Schema.Int("Tip bone index; sets the tip to be a bone, -1 for none"),
-                    "to_bone_name", Schema.Str("Tip bone name"),
-                    "to_offset", Schema.NumArray("Tip as an offset [x, y, z]; clears the tip bone", 3),
-                    "level", Schema.Int("Deform level (transform order)"),
-                    "visible", Schema.Bool("Show the bone in the editor"),
-                    "controllable", Schema.Bool("Allow manual operation"),
-                    "rotatable", Schema.Bool("Rotation flag"),
-                    "translatable", Schema.Bool("Translation flag"),
-                    "after_physics", Schema.Bool("Deform after physics"),
-                    "append_rotation", Schema.Bool("Take rotation from the append parent"),
-                    "append_translation", Schema.Bool("Take translation from the append parent"),
-                    "append_local", Schema.Bool("Take the append value in the parent's local frame"),
-                    "append_parent", Schema.Int("Append parent bone index, or -1 for none"),
-                    "append_parent_name", Schema.Str("Append parent bone name"),
-                    "append_ratio", Schema.Num("Append ratio"),
-                    "fix_axis", Schema.Bool("Restrict operation to a single axis"),
-                    "fix_axis_vector", Schema.NumArray("The fixed axis direction [x, y, z]", 3),
-                    "local_frame", Schema.Bool("Give the bone its own operation frame"),
-                    "local_x", Schema.NumArray("Local frame X axis [x, y, z]", 3),
-                    "local_z", Schema.NumArray("Local frame Z axis [x, y, z]", 3),
-                    "external", Schema.Bool("Deform from a parent outside the model"),
-                    "external_key", Schema.Int("External parent key"),
-                    "is_ik", Schema.Bool("Make this bone an IK bone"))),
+                    "index", Schema.Int("骨骼索引"),
+                    "name", Schema.Str("用于查找骨骼的日文名"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"),
+                    "position", Schema.NumArray("新的骨骼位置 [x, y, z]", 3),
+                    "parent", Schema.Int("父骨骼索引，-1 表示无"),
+                    "parent_name", Schema.Str("父骨骼名称"),
+                    "to_bone", Schema.Int("尾端骨骼索引，将该骨骼设为尾端；-1 表示无"),
+                    "to_bone_name", Schema.Str("尾端骨骼名称"),
+                    "to_offset", Schema.NumArray("以偏移量表示尾端 [x, y, z]；会清除尾端骨骼", 3),
+                    "level", Schema.Int("变形层级（变换顺序）"),
+                    "visible", Schema.Bool("在编辑器中显示该骨骼"),
+                    "controllable", Schema.Bool("允许手动操作"),
+                    "rotatable", Schema.Bool("旋转标志"),
+                    "translatable", Schema.Bool("平移标志"),
+                    "after_physics", Schema.Bool("在物理计算后变形"),
+                    "append_rotation", Schema.Bool("从追加父骨骼继承旋转"),
+                    "append_translation", Schema.Bool("从追加父骨骼继承平移"),
+                    "append_local", Schema.Bool("以父骨骼的局部坐标系计算追加值"),
+                    "append_parent", Schema.Int("追加父骨骼索引，-1 表示无"),
+                    "append_parent_name", Schema.Str("追加父骨骼名称"),
+                    "append_ratio", Schema.Num("追加比例"),
+                    "fix_axis", Schema.Bool("限制为仅沿单一轴操作"),
+                    "fix_axis_vector", Schema.NumArray("固定轴方向 [x, y, z]", 3),
+                    "local_frame", Schema.Bool("为该骨骼启用独立操作坐标系"),
+                    "local_x", Schema.NumArray("局部坐标系 X 轴 [x, y, z]", 3),
+                    "local_z", Schema.NumArray("局部坐标系 Z 轴 [x, y, z]", 3),
+                    "external", Schema.Bool("由模型外部的父级驱动变形"),
+                    "external_key", Schema.Int("外部父级键值"),
+                    "is_ik", Schema.Bool("将该骨骼设为 IK 骨骼"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetBone(editor, args); });
 
             registry.Add(
                 "set_bone_ik",
-                "Edits the IK settings of one bone: its target, loop count, per-loop angle limit "
-                    + "and the whole link chain. The angle is in radians, and PMX stores it four "
-                    + "times larger than the raw value a PMD file holds. Passing links replaces "
-                    + "the chain; each entry is {\"bone\": index or \"bone_name\": name} and may "
-                    + "add {\"low\": [x,y,z], \"high\": [x,y,z]} in radians to limit that link.",
+                "编辑单个骨骼的 IK 设置：目标、循环次数、每次循环的角度限制以及整条链接链。"
+                    + "角度单位为弧度，PMX 中的数值是 PMD 原始值的四倍。传入 links 会整体替换链接链；"
+                    + "每项为 {\"bone\": 索引} 或 {\"bone_name\": 名称}，还可加 "
+                    + "{\"low\": [x,y,z], \"high\": [x,y,z]}（弧度）来限制该链接。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Bone index of the IK bone"),
-                    "name", Schema.Str("Japanese name of the IK bone"),
-                    "target", Schema.Int("Target bone index (the tip that reaches for the IK bone)"),
-                    "target_name", Schema.Str("Target bone name"),
-                    "loop_count", Schema.Int("How many solver iterations"),
-                    "angle", Schema.Num("Per-iteration angle limit, in radians"),
-                    "links", Schema.ObjArray("Replacement link chain, tip first"))),
+                    "index", Schema.Int("IK 骨骼的索引"),
+                    "name", Schema.Str("IK 骨骼的日文名"),
+                    "target", Schema.Int("目标骨骼索引（向 IK 骨骼伸出的尾端骨骼）"),
+                    "target_name", Schema.Str("目标骨骼名称"),
+                    "loop_count", Schema.Int("求解迭代次数"),
+                    "angle", Schema.Num("每次迭代的角度限制，单位弧度"),
+                    "links", Schema.ObjArray("替换用的链接链，尾端在前"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetBoneIk(editor, args); });
 
             registry.Add(
                 "add_bone",
-                "Adds a bone and returns its index. Everything not passed keeps the editor default.",
+                "添加一个骨骼并返回其索引。未传入的属性保持编辑器默认值。",
                 Schema.Object(Json.Obj(
-                    "new_name", Schema.Str("Japanese name"),
-                    "new_name_en", Schema.Str("English name"),
-                    "position", Schema.NumArray("Bone position [x, y, z]", 3),
-                    "parent", Schema.Int("Parent bone index, or -1 for none"),
-                    "parent_name", Schema.Str("Parent bone name"),
-                    "level", Schema.Int("Deform level"),
-                    "visible", Schema.Bool("Show the bone in the editor"),
-                    "controllable", Schema.Bool("Allow manual operation"),
-                    "rotatable", Schema.Bool("Rotation flag"),
-                    "translatable", Schema.Bool("Translation flag"))),
+                    "new_name", Schema.Str("日文名"),
+                    "new_name_en", Schema.Str("英文名"),
+                    "position", Schema.NumArray("骨骼位置 [x, y, z]", 3),
+                    "parent", Schema.Int("父骨骼索引，-1 表示无"),
+                    "parent_name", Schema.Str("父骨骼名称"),
+                    "level", Schema.Int("变形层级"),
+                    "visible", Schema.Bool("在编辑器中显示该骨骼"),
+                    "controllable", Schema.Bool("允许手动操作"),
+                    "rotatable", Schema.Bool("旋转标志"),
+                    "translatable", Schema.Bool("平移标志"))),
                 false,
                 delegate(Dictionary<string, object> args) { return AddBone(editor, args); });
 
             registry.Add(
                 "delete_bone",
-                "Deletes one bone. Vertices weighted to it, and anything else that referenced it, "
-                    + "are left pointing at nothing, so this is for bones you know are unused.",
+                "删除一个骨骼。以该骨骼为权重的顶点以及其他引用它的对象会变成空引用，"
+                    + "因此仅用于确认未使用的骨骼。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Bone index"),
-                    "name", Schema.Str("Japanese bone name"))),
+                    "index", Schema.Int("骨骼索引"),
+                    "name", Schema.Str("日文骨骼名"))),
                 false,
                 delegate(Dictionary<string, object> args) { return DeleteBone(editor, args); });
         }

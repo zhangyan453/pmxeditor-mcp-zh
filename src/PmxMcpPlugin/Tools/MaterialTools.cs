@@ -10,61 +10,60 @@ namespace PmxMcp
         {
             registry.Add(
                 "list_materials",
-                "Lists materials with their index, names, face count, colours and texture paths.",
+                "列出材质及其索引、名称、面数、颜色和贴图路径。",
                 Schema.Object(Json.Obj(
-                    "offset", Schema.Int("First material index to return (default 0)"),
-                    "limit", Schema.Int("How many materials to return (default 200, max 1000)"),
-                    "name_contains", Schema.Str("Only materials whose Japanese or English name contains this text"))),
+                    "offset", Schema.Int("返回的起始材质索引（默认 0）"),
+                    "limit", Schema.Int("返回的材质数量（默认 200，最大 1000）"),
+                    "name_contains", Schema.Str("仅返回日文名或英文名包含此文本的材质"))),
                 true,
                 delegate(Dictionary<string, object> args) { return ListMaterials(editor, args); });
 
             registry.Add(
                 "set_material",
-                "Edits one material. Identify it by index or name; only the fields you pass are changed. "
-                    + "Colour components are 0.0-1.0.",
+                "编辑单个材质。可用索引或名称指定，只修改传入的字段。"
+                    + "颜色分量范围为 0.0-1.0。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Material index"),
-                    "name", Schema.Str("Japanese material name used to find the material"),
-                    "new_name", Schema.Str("New Japanese name"),
-                    "new_name_en", Schema.Str("New English name"),
-                    "diffuse", Schema.NumArray("Diffuse colour [r, g, b, a]", 4),
-                    "specular", Schema.NumArray("Specular colour [r, g, b]", 3),
-                    "ambient", Schema.NumArray("Ambient colour [r, g, b]", 3),
-                    "power", Schema.Num("Specular power"),
-                    "edge", Schema.Bool("Draw the outline"),
-                    "edge_color", Schema.NumArray("Outline colour [r, g, b, a]", 4),
-                    "edge_size", Schema.Num("Outline thickness"),
-                    "both_draw", Schema.Bool("Render both faces"),
-                    "texture", Schema.Str("Texture path relative to the model"),
-                    "sphere", Schema.Str("Sphere map path relative to the model"),
-                    "sphere_mode", Schema.Str("Sphere blend: " + Spheres),
-                    "toon", Schema.Str("Toon path, or a shared name such as toon01.bmp"),
-                    "shadow", Schema.Bool("Cast onto the ground shadow"),
-                    "self_shadow_map", Schema.Bool("Write to the self-shadow map"),
-                    "self_shadow", Schema.Bool("Receive the self-shadow"),
-                    "vertex_color", Schema.Bool("Use per-vertex colour (PMX 2.1)"),
-                    "primitive_type", Schema.Str("Primitive kind (PMX 2.1): " + Primitives),
-                    "memo", Schema.Str("Free-text memo"))),
+                    "index", Schema.Int("材质索引"),
+                    "name", Schema.Str("用于查找材质的日文名"),
+                    "new_name", Schema.Str("新的日文名"),
+                    "new_name_en", Schema.Str("新的英文名"),
+                    "diffuse", Schema.NumArray("漫反射颜色 [r, g, b, a]", 4),
+                    "specular", Schema.NumArray("高光颜色 [r, g, b]", 3),
+                    "ambient", Schema.NumArray("环境光颜色 [r, g, b]", 3),
+                    "power", Schema.Num("高光强度"),
+                    "edge", Schema.Bool("绘制轮廓线"),
+                    "edge_color", Schema.NumArray("轮廓线颜色 [r, g, b, a]", 4),
+                    "edge_size", Schema.Num("轮廓线粗细"),
+                    "both_draw", Schema.Bool("双面渲染"),
+                    "texture", Schema.Str("相对于模型的贴图路径"),
+                    "sphere", Schema.Str("相对于模型的球面贴图路径"),
+                    "sphere_mode", Schema.Str("球面混合模式：" + Spheres),
+                    "toon", Schema.Str("卡通贴图路径，或共享名称如 toon01.bmp"),
+                    "shadow", Schema.Bool("投射到地面阴影"),
+                    "self_shadow_map", Schema.Bool("写入自阴影贴图"),
+                    "self_shadow", Schema.Bool("接收自阴影"),
+                    "vertex_color", Schema.Bool("使用顶点颜色（PMX 2.1）"),
+                    "primitive_type", Schema.Str("图元类型（PMX 2.1）：" + Primitives),
+                    "memo", Schema.Str("自由文本备注"))),
                 false,
                 delegate(Dictionary<string, object> args) { return SetMaterial(editor, args); });
 
             registry.Add(
                 "get_material",
-                "Full detail of one material, including the shadow flags and where its faces "
-                    + "sit in the draw order.",
+                "查看单个材质的完整信息，包括阴影标志及其面在绘制顺序中的位置。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Material index"),
-                    "name", Schema.Str("Japanese material name"))),
+                    "index", Schema.Int("材质索引"),
+                    "name", Schema.Str("日文材质名"))),
                 true,
                 delegate(Dictionary<string, object> args) { return GetMaterial(editor, args); });
 
             registry.Add(
                 "delete_material",
-                "Deletes one material and every face that belongs to it. The vertices stay; "
-                    + "run the editor's cleanup if you want them gone too.",
+                "删除一个材质及其所属的所有面。顶点会保留；"
+                    + "如需一并清除请运行编辑器的清理功能。",
                 Schema.Object(Json.Obj(
-                    "index", Schema.Int("Material index"),
-                    "name", Schema.Str("Japanese material name"))),
+                    "index", Schema.Int("材质索引"),
+                    "name", Schema.Str("日文材质名"))),
                 false,
                 delegate(Dictionary<string, object> args) { return DeleteMaterial(editor, args); });
         }
